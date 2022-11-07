@@ -8,6 +8,9 @@ django = "*"
 pillow = "*"
 whitenoise = "*"
 gunicorn = "*"
+django-cors-headers = "*"
+django-resized = "*"
+markdown = "*"
 
 [dev-packages]
 

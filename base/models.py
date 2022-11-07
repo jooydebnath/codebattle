@@ -1,6 +1,11 @@
+from email.policy import default
 from django.db import models
 import uuid
 from django.contrib.auth.models import AbstractUser
+from django_resized import ResizedImageField
+
+import time
+from datetime import datetime
 
 class User(AbstractUser):
     name = models.CharField(max_length=100, null=True)
@@ -9,11 +14,20 @@ class User(AbstractUser):
 
     professional_participant = models.BooleanField(default=True, null=True)
 
-    avatar = models.ImageField(default='avatar.png')
+    avatar = ResizedImageField(size=[300, 300], default='avatar.png')
     id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
+
+    twitter = models.URLField(max_length=500, null=True, blank=True)
+    linkedin = models.URLField(max_length=500, null=True, blank=True)
+    website = models.URLField(max_length=500, null=True, blank=True)
+    facebook = models.URLField(max_length=500, null=True, blank=True)
+    github = models.URLField(max_length=500, null=True, blank=True)
+
+    class Meta:
+        ordering = ['avatar']
 
 
 class Event(models.Model):
@@ -29,6 +43,29 @@ class Event(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ['-end_date']
+
+    class Meta:
+        ordering = ['-end_date']
+
+    @property
+    def event_status(self):
+        status = None
+
+        present = datetime.now().timestamp()
+        deadline = self.registration_deadline.timestamp()
+        past_deadline = (present > deadline)
+
+        if past_deadline:
+            status = 'Finished'
+        else:
+            status = 'Ongoing'
+
+        return status
+
+
 
 
 class Submission(models.Model):
